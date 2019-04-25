@@ -22,7 +22,7 @@ void solve_equation_euler(float t_init, float t_end, float delta_t, float omega,
 {
   float t=t_init;
   float y=1.0;
-  float z=1.0,y_old,z_old;
+  float z=0.0,y_old,z_old;
   ofstream outfile;
   outfile.open(filename);
 
@@ -30,8 +30,8 @@ void solve_equation_euler(float t_init, float t_end, float delta_t, float omega,
     outfile << t << " " << y <<  " " << z << endl;
     y_old=y;
     z_old=z;
-    y = y - delta_t * z;
-    z = z-delta_t*omega*omega*y_old;
+    y = y_old + delta_t * z;
+    z = z_old-delta_t*omega*omega*y_old;
     t = t + delta_t;
   }
   outfile.close();
@@ -54,7 +54,7 @@ void solve_equation_rk4(float t_init, float t_end, float delta_t, float omega, s
         f0=a*(yn);
         f1=a*(yn+(f0*delta_t)/2.0);
         f2=a*(yn+(f1*delta_t)/2.0);
-        f3=a*(yn+(f2*delta_t)/2.0);
+        f3=a*(yn+(f2*delta_t));
             
         R=(f0/6.0+f1/3.0+f2/3.0+f3/6.0);// y n+1 
         
@@ -71,33 +71,29 @@ void solve_equation_rk4(float t_init, float t_end, float delta_t, float omega, s
     
 void solve_equation_leapfrog(float t_init, float t_end, float delta_t, float omega, string filename)
 {
-    float ai,vi_medio,xn,v2,x,a;
-    
-    xn=1.0;
-    v2=0.0;
+    float vmed,vn,dvdt,xn1,xn,dxdt,vn1;
 
     ofstream outfile;
     outfile.open(filename); 
     
+    xn=1.0;
+    vn=0.0;
     
-    a=-omega*omega;
     
     while (t_init<t_end)
     {
-        ai=a*(t_init);
-        vi_medio=v2+ai*delta_t;
-        x=xn+vi_medio*delta_t;
+        dvdt=-omega*omega*xn;
+        vmed=vn+(dvdt*delta_t)/2;
+        xn=xn+vmed*delta_t;
+        dvdt=-omega*omega*xn;
+        vn=vmed+(dvdt*delta_t)/2;
         
-        outfile << t_init << " " << x << " " << vi_medio <<endl;
+        outfile << t_init << " " << xn << " " << vn <<endl;
         
         t_init=t_init+delta_t;
-        v2=vi_medio;
-        xn=x;
-
     }     
     
     outfile.close();
-
 }
 
 
